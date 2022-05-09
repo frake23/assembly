@@ -8,5 +8,7 @@ debug:
 cr:
 	make compile
 	make run
-d:
+cd:
+	make compile
 	make debug
+	
