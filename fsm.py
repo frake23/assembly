@@ -27,6 +27,11 @@ def next_state(msg: str):
             prefix = 'c' if num == '1' else 'd'
             fun = lambda e: e['from'] == current_state and e['name'][0] == prefix
             event = list(filter(fun, events))[0]
+            match event['name'][-1]:
+                case '3' | '4' as good_num:
+                    return {'state': event['to'], 'msg': f'\nВыдан товар {"A" if good_num == "3" else "B"}\nБез сдачи\n'}
+                case '0':
+                    return {'state': event['to'], 'msg': f'\nПолучено {num} рублей\n'}
         case 'cancel':
             fun = lambda e: e['from'] == current_state and e['name'][0] == 'e'
             event = list(filter(fun, events))[0]
@@ -37,7 +42,7 @@ while True:
     read_msg = True
     match current_state:
         case 's0':
-            print('Выберите товар A или B (type "A" or "B")')
+            print('Выберите товар A [1 рубль] или B [2 рубля] (type "A" or "B")')
         case 's1' | 's2':
             print('Выберите действие: вставить 1 рубль, 2 рубля, отменить (type "1", "2" or "cancel")')
         case 's3':
