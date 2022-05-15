@@ -105,7 +105,7 @@ _start:
     mov BX, [c]  ; bx = c;
     sar BX, 1    ; bx >> 1;
     add AX, BX   ; ax += bx;
-    mov [x], AX
+    mov [x], AX  ; x = ax
     
     ; вывод
 

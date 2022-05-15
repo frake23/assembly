@@ -1,64 +1,72 @@
-%include "./lib64.asm"
+    section .data           ; сегмент инициализированных переменных
+ExitMsg db      "Press Enter to Exit", 10 ; выводимое сообщение
+lenExit equ     $-ExitMsg
+A       dd   -30
+B       dd   21
 
-%macro write_string 2
-    ; вывод
-    ; 1 - адрес строки, 2 - длина строки
-    mov     rax, 1          ; системная функция 1 (write)
-    mov     rdi, 1          ; дескриптор файла stdout=1
-    mov     rsi, %1         ; адрес выводимой строки
-    mov     rdx, %2         ; длина строки
-    syscall                 ; вызов системной функции
-%endmacro
+val1    db      255
+chart   dw      256
+lue3    dw      -128
+v5      db      10h
+        db      100101B
+beta    db      23,23h,0ch
+sdk     db      "Hello",10
+min     dw      -32767
+ar      dd      12345678h
+valar   times   5   db      8
 
-%macro read_string 2
-    ; ввод
-    ; 1 - буфер ввода, 2 - длина буфера ввода
-    mov     rax, 0          ; системная функция 0 (read)
-    mov     rdi, 0          ; дескриптор файла stdin=0
-    mov     rsi, %1         ; адрес вводимой строки
-    mov     rdx, %2         ; длина строки
-    syscall                 ; вызов системной функции
-%endmacro
+value1  dw      25
+value2  dd      -35
+name    db      "Dmitry", 10
+name_ru db      "Дмитрий", 10
 
-%macro StrToInt 1
-    ; перевод string в integer
-    ; rsi должен содержать адрес строки для преобразования
-    call    StrToInt64          ; вызов процедуры
-    cmp     rbx, 0              ; сравнение кода возврата
-    jne     StrToInt64.Error    ; обработка ошибки
-    mov     %1, eax            
-%endmacro
+x1 db 25h, 0
+x2 dw 25h
+x3 dw '%'
 
-%macro IntToStr 2
-    ; перевод integer в string
-    mov     rsi, %2
-    mov     eax, %1             ; получение числа из памяти
-    cwde
-    call    IntToStr64          ; вызов процедуры
-    cmp     rbx, 0              ; сравнение кода возврата
-    jne     StrToInt64.Error    ; обработка ошибки         
-%endmacro
+y1 db 0, 25h
+y2 dw 2500h
+y3 db 0, '%'
 
-    section .data
-ExitMsg db "Press Enter to Exit", 10
-lenExit equ $-ExitMsg
-InputMsg db "Enter matrix 7x7", 10
-lenInput equ $-InputMsg
-OutputMsg db "Matrix after conversion", 10
-lenOutput equ $-OutputMsg
-tab db 9
-newLine db 10
+F1      dw      65535
+F2      dd      65535
 
-    section .bss
-InBuf resb 10
-lenIn equ $-InBuf
-OutBuf resb 10
-lenOut equ $-OutBuf
-matrix resd 49
-sum resd 1
+    section .bss            ; сегмент неинициализированных переменных
+InBuf   resb    10          ; буфер для вводимой строки
+lenIn   equ     $-InBuf     ; длина буфера для вводимой строки
+X       resd    1
+alu     resw    10
+f1      resb    5
 
-    section .text
+    section .text           ; сегмент кода
     global _start
 
 _start:
+    ; вычисления
+    mov     eax, [A]        ; загрузить число A в регистр EAX
+    add     eax, 5          ; сложить EAX и 5, результат в EAX
+    sub     eax, [B]        ; вычесть число B, результат в EAX
+    mov     [X], eax        ; сохранить результат в памяти
 
+    ; переполнение
+    add     WORD    [F1], 1
+    add     DWORD   [F2], 1
+
+    ; вывод
+    mov     rax, 1          ; системная функция 1 (write)
+    mov     rdi, 1          ; дескриптор файла stdout=1
+    mov     rsi, ExitMsg    ; адрес выводимой строки
+    mov     rdx, lenExit    ; длина строки
+    syscall                 ; вызов системной функции
+
+    ; ввод
+    mov     rax, 0          ; системная функция 0 (read)
+    mov     rdi, 0          ; дескриптор файла stdin=0
+    mov     rsi, InBuf      ; адрес вводимой строки
+    mov     rdx, lenIn      ; длина строки
+    syscall                 ; вызов системной функции
+
+    ; завершение программы
+    mov     rax, 60         ; системная функция 60 (exit)
+    xor     rdi, rdi        ; return code 0    
+    syscall                 ; вызов системной функции
