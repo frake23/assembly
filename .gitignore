@@ -1,7 +1,3 @@
-**.lst
-**.o
-~**.docx
-
 # Ignore all
 *
 
@@ -12,3 +8,8 @@
 !*/
 
 ### Above combination will ignore all files without extension ###
+
+**.lst
+**.o
+~**.docx
+
