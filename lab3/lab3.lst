@@ -1,0 +1,322 @@
+     1                                  %include "./lib64.asm"
+     1                              <1>          section .text     ; ������� ����
+     2                              <1> IntToStr64: 
+     3 00000000 57                  <1>          push   rdi
+     4 00000001 53                  <1>          push   rbx
+     5 00000002 52                  <1>          push   rdx
+     6 00000003 51                  <1>          push   rcx
+     7 00000004 56                  <1> 		 push   rsi
+     8 00000005 C60600              <1> 		 mov    byte[rsi],0 ; �� ����� �����
+     9 00000008 83F800              <1>          cmp    eax,0
+    10 0000000B 7D05                <1>          jge    .l1
+    11 0000000D F7D8                <1>          neg    eax
+    12 0000000F C6062D              <1>          mov    byte[rsi],'-'
+    13 00000012 C646060A            <1> .l1      mov    byte[rsi+6],10
+    14 00000016 BF05000000          <1>          mov    rdi,5
+    15 0000001B 66BB0A00            <1>          mov    bx,10
+    16 0000001F 6699                <1> .again:  cwd           ; ��������� ����� �� ��������
+    17 00000021 66F7F3              <1>          div    bx     ; ����� ��������� �� 10
+    18 00000024 80C230              <1>          add    dl,30h ; �������� �� ������� ��� �����
+    19 00000027 88143E              <1>          mov    [rsi+rdi],dl ; ����� ������ � ������
+    20 0000002A 48FFCF              <1>          dec    rdi    ; ��������� ��������� ��  
+    21                              <1>                        ; ���������� �������
+    22 0000002D 6683F800            <1>          cmp    ax, 0  ; ������������� ��� �����?
+    23 00000031 75EC                <1>          jne    .again
+    24 00000033 B906000000          <1>          mov    rcx, 6
+    25 00000038 4829F9              <1>          sub    rcx, rdi ; ����� ����������+����
+    26 0000003B 4889C8              <1> 		 mov    rax,rcx
+    27 0000003E 48FFC0              <1> 		 inc    rax    ; ����� ����������+OA
+    28 00000041 48FFC6              <1>          inc    rsi    ; ���������� ����
+    29 00000044 56                  <1> 		 push   rsi
+    30 00000045 488D343E            <1>          lea    rsi,[rsi+rdi] ; ������ ����������
+    31 00000049 5F                  <1> 		 pop    rdi
+    32 0000004A F3A4                <1>          rep movsb
+    33 0000004C 5E                  <1>          pop    rsi  
+    34 0000004D 59                  <1>          pop    rcx
+    35 0000004E 5A                  <1>          pop    rdx
+    36 0000004F 5B                  <1>          pop    rbx
+    37 00000050 5F                  <1>          pop    rdi
+    38 00000051 C3                  <1>          ret
+    39                              <1> StrToInt64:
+    40 00000052 57                  <1>          push   rdi
+    41 00000053 B739                <1>          mov    bh, '9'
+    42 00000055 B330                <1>          mov    bl, '0'
+    43 00000057 56                  <1>          push   rsi     ; ��������� ����� �������� ������
+    44 00000058 803E2D              <1>          cmp    byte[rsi], '-'
+    45 0000005B 7503                <1>          jne    .prod
+    46 0000005D 48FFC6              <1>          inc    rsi     ; ���������� ����
+    47 00000060 FC                  <1> .prod    cld
+    48 00000061 6631FF              <1>          xor    di, di  ; �������� ������� �����
+    49 00000064 AC                  <1> .cycle:  lodsb          ; ��������� ������ (�����)
+    50 00000065 3C0A                <1>          cmp    al, 10  ; ���� 10, �� �� �����
+    51 00000067 741F                <1>          je     .Return
+    52 00000069 38D8                <1>          cmp    al, bl  ; ���������� � ����� ����
+    53 0000006B 722F                <1>          jb     .Error  ; "����" � ������
+    54 0000006D 38F8                <1>          cmp    al, bh  ; ���������� � ����� ������ 
+    55 0000006F 772B                <1>          ja     .Error  ; "����" � ������
+    56 00000071 2C30                <1>          sub    al, 30h ; �������� ����� �� �������
+    57 00000073 6698                <1>          cbw            ; ��������� �� �����
+    58 00000075 6650                <1>          push   ax      ; ��������� � �����
+    59 00000077 66B80A00            <1>          mov    ax, 10  ; ������� 10 � AX
+    60 0000007B 66F7E7              <1>          mul    di      ; ��������, ��������� � DX:AX
+    61 0000007E 665F                <1>          pop    di      ; � DI � ��������� �����
+    62 00000080 6601F8              <1>          add    ax, di
+    63 00000083 6689C7              <1>          mov    di, ax  ; � DI � ����������� �����        
+    64 00000086 EBDC                <1>          jmp    .cycle
+    65 00000088 5E                  <1> .Return: pop    rsi
+    66 00000089 BB00000000          <1>          mov    rbx, 0
+    67 0000008E 803E2D              <1>          cmp    byte[rsi], '-'
+    68 00000091 7503                <1>          jne    .J
+    69 00000093 66F7DF              <1>          neg    di
+    70 00000096 6689F8              <1> .J       mov    ax, di
+    71 00000099 98                  <1>          cwde
+    72 0000009A EB0B                <1>          jmp    .R
+    73 0000009C 5E                  <1> .Error:  pop    rsi
+    74 0000009D B800000000          <1>          mov    rax, 0
+    75 000000A2 BB01000000          <1>          mov    rbx, 1
+    76 000000A7 5F                  <1> .R       pop    rdi
+    77 000000A8 C3                  <1>          ret
+     2                                  
+     3                                  %macro write_string 2
+     4                                      ; вывод
+     5                                      ; 1 - адрес строки, 2 - длина строки
+     6                                      mov     rax, 1          ; системная функция 1 (write)
+     7                                      mov     rdi, 1          ; дескриптор файла stdout=1
+     8                                      mov     rsi, %1         ; адрес выводимой строки
+     9                                      mov     rdx, %2         ; длина строки
+    10                                      syscall                 ; вызов системной функции
+    11                                  %endmacro
+    12                                  
+    13                                  %macro read_string 2
+    14                                      ; ввод
+    15                                      ; 1 - буфер ввода, 2 - длина буфера ввода
+    16                                      mov     rax, 0          ; системная функция 0 (read)
+    17                                      mov     rdi, 0          ; дескриптор файла stdin=0
+    18                                      mov     rsi, %1         ; адрес вводимой строки
+    19                                      mov     rdx, %2         ; длина строки
+    20                                      syscall                 ; вызов системной функции
+    21                                  %endmacro
+    22                                  
+    23                                  %macro StrToInt 1
+    24                                      ; перевод string в integer
+    25                                      ; rsi должен содержать адрес строки для преобразования
+    26                                      call    StrToInt64          ; вызов процедуры
+    27                                      cmp     rbx, 0              ; сравнение кода возврата
+    28                                      jne     StrToInt64.Error    ; обработка ошибки
+    29                                      mov     %1, eax            
+    30                                  %endmacro
+    31                                  
+    32                                  %macro IntToStr 2
+    33                                      ; перевод integer в string
+    34                                      mov     rsi, %2
+    35                                      mov     eax, %1             ; получение числа из памяти
+    36                                      cwde
+    37                                      call    IntToStr64          ; вызов процедуры
+    38                                      cmp     rbx, 0              ; сравнение кода возврата
+    39                                      jne     StrToInt64.Error    ; обработка ошибки         
+    40                                  %endmacro
+    41                                  
+    42                                      section .data
+    43 00000000 456E74657220612C20-     InputMsg db "Enter a, x, k", 10
+    43 00000009 782C206B0A         
+    44                                  lenInput equ $-InputMsg
+    45 0000000E 61203D20                aInput db "a = "
+    46                                  aLen equ $-aInput
+    47 00000012 6B203D20                kInput db "k = "
+    48                                  kLen equ $-kInput
+    49 00000016 78203D20                xInput db "x = "
+    50                                  xLen equ $-xInput
+    51 0000001A 526573756C743A2066-     OutputMsg db "Result: f = "
+    51 00000023 203D20             
+    52                                  lenOutput equ $-OutputMsg
+    53 00000026 6B2063616E6E6F7420-     ErrorMsg db "k cannot be 0", 10
+    53 0000002F 626520300A         
+    54                                  lenError equ $-ErrorMsg
+    55                                  
+    56                                      section .bss
+    57 00000000 <res 0000000A>          InBuf resb 10
+    58                                  lenIn equ $-InBuf
+    59 0000000A <res 0000000A>          OutBuf resb 10
+    60                                  lenOut equ $-OutBuf
+    61 00000014 <res 00000002>          a resw 1
+    62 00000016 <res 00000002>          x resw 1
+    63 00000018 <res 00000002>          k resw 1
+    64 0000001A <res 00000004>          f resd 1
+    65                                  
+    66                                      section .text
+    67                                      global _start
+    68                                  
+    69                                  _start:
+    70                                      ; ввод
+    71                                      
+    72                                      write_string InputMsg, lenInput
+    72                              <1> 
+    72                              <1> 
+    72 000000A9 B801000000          <1>  mov rax, 1
+    72 000000AE BF01000000          <1>  mov rdi, 1
+    72 000000B3 48BE-               <1>  mov rsi, %1
+    72 000000B5 [0000000000000000]  <1>
+    72 000000BD BA0E000000          <1>  mov rdx, %2
+    72 000000C2 0F05                <1>  syscall
+    73                                  
+    74                                      write_string aInput, aLen
+    74                              <1> 
+    74                              <1> 
+    74 000000C4 B801000000          <1>  mov rax, 1
+    74 000000C9 BF01000000          <1>  mov rdi, 1
+    74 000000CE 48BE-               <1>  mov rsi, %1
+    74 000000D0 [0E00000000000000]  <1>
+    74 000000D8 BA04000000          <1>  mov rdx, %2
+    74 000000DD 0F05                <1>  syscall
+    75                                      read_string InBuf, lenIn
+    75                              <1> 
+    75                              <1> 
+    75 000000DF B800000000          <1>  mov rax, 0
+    75 000000E4 BF00000000          <1>  mov rdi, 0
+    75 000000E9 48BE-               <1>  mov rsi, %1
+    75 000000EB [0000000000000000]  <1>
+    75 000000F3 BA0A000000          <1>  mov rdx, %2
+    75 000000F8 0F05                <1>  syscall
+    76                                      StrToInt [a]
+    76                              <1> 
+    76                              <1> 
+    76 000000FA E853FFFFFF          <1>  call StrToInt64
+    76 000000FF 4883FB00            <1>  cmp rbx, 0
+    76 00000103 7597                <1>  jne StrToInt64.Error
+    76 00000105 890425[14000000]    <1>  mov %1, eax
+    77                                  
+    78                                      write_string xInput, xLen
+    78                              <1> 
+    78                              <1> 
+    78 0000010C B801000000          <1>  mov rax, 1
+    78 00000111 BF01000000          <1>  mov rdi, 1
+    78 00000116 48BE-               <1>  mov rsi, %1
+    78 00000118 [1600000000000000]  <1>
+    78 00000120 BA04000000          <1>  mov rdx, %2
+    78 00000125 0F05                <1>  syscall
+    79                                      read_string InBuf, lenIn
+    79                              <1> 
+    79                              <1> 
+    79 00000127 B800000000          <1>  mov rax, 0
+    79 0000012C BF00000000          <1>  mov rdi, 0
+    79 00000131 48BE-               <1>  mov rsi, %1
+    79 00000133 [0000000000000000]  <1>
+    79 0000013B BA0A000000          <1>  mov rdx, %2
+    79 00000140 0F05                <1>  syscall
+    80                                      StrToInt [x]
+    80                              <1> 
+    80                              <1> 
+    80 00000142 E80BFFFFFF          <1>  call StrToInt64
+    80 00000147 4883FB00            <1>  cmp rbx, 0
+    80 0000014B 0F854BFFFFFF        <1>  jne StrToInt64.Error
+    80 00000151 890425[16000000]    <1>  mov %1, eax
+    81                                      
+    82                                      write_string kInput, kLen
+    82                              <1> 
+    82                              <1> 
+    82 00000158 B801000000          <1>  mov rax, 1
+    82 0000015D BF01000000          <1>  mov rdi, 1
+    82 00000162 48BE-               <1>  mov rsi, %1
+    82 00000164 [1200000000000000]  <1>
+    82 0000016C BA04000000          <1>  mov rdx, %2
+    82 00000171 0F05                <1>  syscall
+    83                                      read_string InBuf, lenIn
+    83                              <1> 
+    83                              <1> 
+    83 00000173 B800000000          <1>  mov rax, 0
+    83 00000178 BF00000000          <1>  mov rdi, 0
+    83 0000017D 48BE-               <1>  mov rsi, %1
+    83 0000017F [0000000000000000]  <1>
+    83 00000187 BA0A000000          <1>  mov rdx, %2
+    83 0000018C 0F05                <1>  syscall
+    84                                      StrToInt [k]
+    84                              <1> 
+    84                              <1> 
+    84 0000018E E8BFFEFFFF          <1>  call StrToInt64
+    84 00000193 4883FB00            <1>  cmp rbx, 0
+    84 00000197 0F85FFFEFFFF        <1>  jne StrToInt64.Error
+    84 0000019D 890425[18000000]    <1>  mov %1, eax
+    85                                  
+    86 000001A4 668B0425[18000000]          mov ax, [k]
+    87 000001AC 6683F800                    cmp ax, 0
+    88 000001B0 0F84C3000000                je catch
+    89                                  
+    90                                      ; вычисления
+    91                                  
+    92 000001B6 668B0425[14000000]          mov ax, [a]
+    93 000001BE 668B1C25[18000000]          mov bx, [k]
+    94 000001C6 66F7EB                      imul bx
+    95 000001C9 6683FA00                    cmp dx, 0
+    96 000001CD 7D25                        jge greater
+    97                                      less:
+    98 000001CF 668B0425[14000000]              mov ax, [a]
+    99 000001D7 66F7EB                          imul bx
+   100 000001DA 6689D1                          mov cx, dx
+   101 000001DD C1E110                          shl ecx, 16
+   102 000001E0 6689C1                          mov cx, ax
+   103 000001E3 66B87800                        mov ax, 120
+   104 000001E7 6631D2                          xor dx, dx
+   105 000001EA 66F7FB                          idiv bx
+   106 000001ED 6601C1                          add cx, ax
+   107 000001F0 89C8                            mov eax, ecx
+   108 000001F2 EB21                            jmp continue
+   109                                      greater:
+   110 000001F4 6683F800                        cmp ax, 0
+   111 000001F8 74D5                            je less
+   112 000001FA 668B0425[14000000]              mov ax, [a]
+   113 00000202 668B1C25[16000000]              mov bx, [x]
+   114 0000020A 66F7EB                          imul bx
+   115 0000020D C1E210                          shl edx, 16
+   116 00000210 6689C2                          mov dx, ax
+   117 00000213 89D0                            mov eax, edx
+   118                                      continue:
+   119 00000215 890425[1A000000]                mov [f], eax
+   120                                  
+   121                                      ; вывод
+   122                                  
+   123 0000021C 4831DB                      xor rbx, rbx
+   124                                      write_string OutputMsg, lenOutput
+   124                              <1> 
+   124                              <1> 
+   124 0000021F B801000000          <1>  mov rax, 1
+   124 00000224 BF01000000          <1>  mov rdi, 1
+   124 00000229 48BE-               <1>  mov rsi, %1
+   124 0000022B [1A00000000000000]  <1>
+   124 00000233 BA0C000000          <1>  mov rdx, %2
+   124 00000238 0F05                <1>  syscall
+   125                                      IntToStr [f], OutBuf
+   125                              <1> 
+   125 0000023A 48BE-               <1>  mov rsi, %2
+   125 0000023C [0A00000000000000]  <1>
+   125 00000244 8B0425[1A000000]    <1>  mov eax, %1
+   125 0000024B 98                  <1>  cwde
+   125 0000024C E8AFFDFFFF          <1>  call IntToStr64
+   125 00000251 4883FB00            <1>  cmp rbx, 0
+   125 00000255 0F8541FEFFFF        <1>  jne StrToInt64.Error
+   126 0000025B 4889C3                      mov RBX, RAX
+   127                                      write_string OutBuf, RBX
+   127                              <1> 
+   127                              <1> 
+   127 0000025E B801000000          <1>  mov rax, 1
+   127 00000263 BF01000000          <1>  mov rdi, 1
+   127 00000268 48BE-               <1>  mov rsi, %1
+   127 0000026A [0A00000000000000]  <1>
+   127 00000272 4889DA              <1>  mov rdx, %2
+   127 00000275 0F05                <1>  syscall
+   128 00000277 EB1B                        jmp exit
+   129                                  
+   130                                      catch:
+   131                                          write_string ErrorMsg, lenError
+   131                              <1> 
+   131                              <1> 
+   131 00000279 B801000000          <1>  mov rax, 1
+   131 0000027E BF01000000          <1>  mov rdi, 1
+   131 00000283 48BE-               <1>  mov rsi, %1
+   131 00000285 [2600000000000000]  <1>
+   131 0000028D BA0E000000          <1>  mov rdx, %2
+   131 00000292 0F05                <1>  syscall
+   132                                  
+   133                                      exit:
+   134 00000294 B83C000000                      mov     rax, 60         ; системная функция 60 (exit)
+   135 00000299 4831FF                          xor     rdi, rdi        ; return code 0    
+   136 0000029C 0F05                            syscall                 ; вызов системной функции

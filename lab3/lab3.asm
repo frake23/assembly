@@ -89,11 +89,12 @@ _start:
 
     ; вычисления
 
-    mov ax, [a] ; ax = a
-    mov bx, [k] ; bx = k
-    imul bx     ; dx:ax = ax * bx
-    cmp dx, 0   ; if dx:ax > 0
+    mov ax, [a]
+    mov bx, [k]
+    imul bx
+    cmp dx, 0
     jge greater
+    less:
         mov ax, [a]
         imul bx
         mov cx, dx
@@ -106,6 +107,8 @@ _start:
         mov eax, ecx
         jmp continue
     greater:
+        cmp ax, 0
+        je less
         mov ax, [a]
         mov bx, [x]
         imul bx
