@@ -74,7 +74,6 @@ _start:
             jz even
             odd:
                 lea rdi, [result + rcx]
-                mov al, [rsp + rcx]
                 movsb
                 jmp continue_not_space
             even:
@@ -84,14 +83,12 @@ _start:
                 add rax, 5
                 sub rax, rdx
                 lea rdi, [result + rax]
-                mov al, [rsp + rcx]
                 movsb
             continue_not_space:
             inc rdx
             jmp continue
         end_of_word:
             lea rdi, [result + rcx]
-            mov al, [rsp + rcx]
             movsb
 
             xor rdx, rdx
