@@ -87,7 +87,7 @@ _start:
         repne scasb ; находим адрес конца слова
         sub rdi, 1
         mov [endAddress], rdi
-        mov [buff], rdi
+        push rdi
         mov rcx, [endAddress]
         sub rcx, [startAddress]
         mov [wlen], rcx
@@ -98,13 +98,13 @@ _start:
         cmp rdx, rbx
         je break_cmp_cycle
         cmp_cycle:
-            mov rdi, [buff]
+            pop rdi
             mov ecx, 64
             repe scasb ; находим адрес начала слова
             sub rdi, 1
             mov [startAddress], rdi
             repne scasb ; находим адрес конца слова
-            mov [buff], rdi
+            push rdi
             sub rdi, 1
             mov [endAddress], rdi
             mov rcx, [endAddress]
@@ -123,7 +123,7 @@ _start:
                 mov [minStart], rsi
                 rep movsb
         continue_cmp_cycle:
-            mov rdi, [buff]
+            pop rdi
             inc rdx
             cmp rdx, rbx
             jne cmp_cycle

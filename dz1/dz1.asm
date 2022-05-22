@@ -59,6 +59,8 @@ _start:
 
     write_string InputMsg, lenInput
 
+    sub rsp, 56
+
     read_string rsp, 56     ; вводим строку
 
     mov rcx, 0              ; rcx - индекс символа в строке, введенной пользователем
