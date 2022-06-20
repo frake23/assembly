@@ -1,5 +1,5 @@
     global _Z14reverse_stringPcPsS_
-    extern _Z6outputc
+    extern _Z6outputs
 
     section .data
 
@@ -61,6 +61,13 @@ _Z14reverse_stringPcPsS_:
             movsb
             jmp continue_word
             reverse_word:
+                push rdi
+                push rsi
+                xor rdi, rdi
+                mov di, [rdx]
+                call _Z6outputs
+                pop rsi
+                pop rdi
                 push rbx
                 push rsi
                 mov rbx, 0
