@@ -5,7 +5,7 @@ func_words = ['if', 'else']
 def empty(f):
     def _w(s: str):
         if s == '':
-            return s, False
+            return s
         return f(s)
     return _w
 
@@ -29,14 +29,16 @@ def id(s: str):
     if valid:
         print(f'Идентификатор: {word}')
         s = s[len(word):]
-        return s, valid
+        return s
     else:
         raise Exception(f'Неверный идентификатор: {word}')
 
 
-@empty
 def number(s: str):
     s = s.lstrip()
+
+    if (s == ''):
+        return s, False
 
     s1 = s
     if s[0] == '-':
@@ -51,7 +53,6 @@ def number(s: str):
     return s, False
 
 
-@empty
 def assignment(s: str):
     s = s.lstrip()
     if s == '' or s[0] != '=':
@@ -60,11 +61,11 @@ def assignment(s: str):
     s1 = s[1:].lstrip()
     s1, valid = number(s1)
     if valid:
-        return s1, valid
+        return s1
 
-    s1, valid = id(s1)
+    s1 = id(s1)
 
-    return s1, True
+    return s1
 
 
 @empty
@@ -72,19 +73,15 @@ def else_condition(s: str):
     s = s.lstrip()
     word = first_word(s)
     if word != 'else':
-        return s, True
+        return s
     print('Служебное слово: else')
 
     s1 = s[len(word):].lstrip()
-    s1, valid = expression(s1)
+    s1 = expression(s1)
 
-    if not valid:
-        return s, False
-
-    return s1, True
+    return s1
 
 
-@empty
 def condition(s: str):
     s = s.lstrip()
     word = first_word(s)
@@ -97,7 +94,7 @@ def condition(s: str):
         raise Exception('Ожидался терминал: (')
 
     s1 = s1[1:].lstrip()
-    s1, valid = id(s1)
+    s1 = id(s1)
 
     s1 = s1.lstrip()
     if s1[0] != ')':
@@ -111,23 +108,21 @@ def expression(s: str):
     s, valid = condition(s)
 
     if valid:
-        s, valid = expression(s)
-        s, valid = else_condition(s)
-        return s, valid
+        s = expression(s)
+        s = else_condition(s)
+        return s
 
-    s, valid = id(s)
-    s, valid = assignment(s)
-    return s, valid
+    s = id(s)
+    s = assignment(s)
+    return s
 
 
 def simple_expression(s: str):
-    s, valid = expression(s)
+    s = expression(s)
     s = s.strip()
 
     if s == '' or s[0] != ';':
         raise Exception('Ожидался терминал: ;')
-
-    return valid
 
 
 print("Вводите строки до exit")
